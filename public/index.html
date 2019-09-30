@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Files send and delete</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+
+<body>
+    Select max 5 files:
+    <br />
+    <input id='files' type='file' multiple>
+    <br />
+    <pre id='upload-info'></pre>
+    <br />
+    <pre id='result'></pre>
+    <br />
+    <button id='send'>Send</button>
+    <br />
+    <br />
+    <br />Enter one file (with path) per line:
+    <br />
+    <textarea rows="5" cols="40"></textarea>
+    <br />
+    <pre id='result-delete'></pre>
+    <br />
+    <button id='delete'>Delete</button>
+    <script>
+        function filesSelected() {
+            var input = $('input#files').get(0);
+            var txt = '';
+
+            if (input.files.length > 5) {
+                txt += 'Too many files selected! (selecting only first 5)\n\n';
+            }
+            txt += 'Selected files:\n\n';
+
+            if (input.files.length > 0) {
+                for (var i = 0; i < Math.min(5, input.files.length); i++) {
+                    txt += input.files[i].name + '\n';
+                }
+            }
+
+            $('#upload-info').text(txt);
+        }
+
+        function send() {
+            var formData = new FormData();
+            var input = $('input#files').get(0);
+
+            for (var i = 0; i < Math.min(5, input.files.length); i++) {
+                formData.append('myfiles', input.files[i]);
+            }
+
+            fetch('/uploadfiles', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(response => {
+                    $('#result').text(JSON.stringify(response));
+                })
+                .catch(error => {
+                    $('#result').text(error);
+                });
+        }
+
+        function deleteFiles() {
+            var files_to_delete = $('textarea').val().trim().split('\n').filter(file => file.length > 0);
+            if (files_to_delete.length > 0) {
+                fetch('/deletefiles', {
+                        method: 'POST',
+                        body: JSON.stringify(files_to_delete),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(response => {
+                        $('#result-delete').text(JSON.stringify(response));
+                    })
+                    .catch(error => {
+                        $('#result-delete').text(error);
+                    });
+            }
+        }
+
+        $('textarea').val('exezip/test1.zip\nexezip/test2.zip\nuserfiles/testfile.pdf');
+        $('#files').change(filesSelected);
+        $('#send').click(send);
+        $('#delete').click(deleteFiles);
+    </script>
+</body>
+
+</html>
