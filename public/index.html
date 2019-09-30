@@ -51,6 +51,8 @@
             for (var i = 0; i < Math.min(5, input.files.length); i++) {
                 formData.append('myfiles', input.files[i]);
             }
+            
+            formData.append('id', 300);
 
             fetch('/uploadfiles', {
                     method: 'POST',
