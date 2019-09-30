@@ -78,6 +78,7 @@ app.post('/uploadfiles', authCheckMiddleware,
         },
         storage: multer.diskStorage({
             filename: function(req, file, cb) {
+                console.log('ID > ' + req.body['id'])
                 //cb(null, file.originalname + '-' + Date.now()); // original file name + random date numbers
                 cb(null, file.originalname); // if file with this filename already exists it will be overwritten
             },
